@@ -27,42 +27,8 @@ This bot demonstrates many of the core features of Botkit:
 
     token=<MY TOKEN> node bot.js
 
-# USE THE BOT:
-
-  Find your bot inside Slack to send it a direct message.
-
-  Say: "Hello"
-
-  The bot will reply "Hello!"
-
-  Say: "who are you?"
-
-  The bot will tell you its name, where it running, and for how long.
-
-  Say: "Call me <nickname>"
-
-  Tell the bot your nickname. Now you are friends.
-
-  Say: "who am I?"
-
-  The bot will tell you your nickname, if it knows one for you.
-
-  Say: "shutdown"
-
-  The bot will ask if you are sure, and then shut itself down.
-
-  Make sure to invite your bot into other channels using /invite @<my bot>!
-
-# EXTEND THE BOT:
-
-  Botkit is has many features for building cool and useful bots!
-
-  Read all about it here:
-
-    -> http://howdy.ai/botkit
-
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
+var request = require('request');
 
 if (!process.env.token) {
     console.log('Error: Specify token in environment');
@@ -164,6 +130,22 @@ controller.hears(['uptime','identify yourself','who are you','what is your name'
     var uptime = formatUptime(process.uptime());
 
     bot.reply(message,':robot_face: I am a bot named <@' + bot.identity.name + '>. I have been running for ' + uptime + ' on ' + hostname + '.');
+
+});
+
+controller.hears(['mtg'], 'direct_message,direct_mention,mention', function(bot, message) {
+
+  request({
+    uri: "https://api.magicthegathering.io/v1/cards?name=%22zurgo%20helmsmasher%22",
+    method: 'GET',
+  }, function (error, response, body) {
+    if (error) {
+      return;
+    }
+    obj = JSON.parse(body);
+    // console.log(obj.cards[1]['imageUrl']);
+    bot.reply(message, (obj.cards[1]['imageUrl']|| 'error'));
+  });
 
 });
 
