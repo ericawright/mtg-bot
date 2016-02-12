@@ -133,18 +133,21 @@ controller.hears(['uptime','identify yourself','who are you','what is your name'
 
 });
 
-controller.hears(['mtg'], 'direct_message,direct_mention,mention', function(bot, message) {
-
+controller.hears(['(.*)'], 'direct_message,direct_mention,mention', function(bot, message) {
+    card_name = encodeURI(message.text);
   request({
-    uri: "https://api.magicthegathering.io/v1/cards?name=%22zurgo%20helmsmasher%22",
+    uri: "https://api.magicthegathering.io/v1/cards?name="+card_name,
     method: 'GET',
   }, function (error, response, body) {
     if (error) {
       return;
     }
     obj = JSON.parse(body);
-    // console.log(obj.cards[1]['imageUrl']);
-    bot.reply(message, (obj.cards[1]['imageUrl']|| 'error'));
+    if(obj.cards && obj.cards[1]){
+        bot.reply(message, (obj.cards[1]['imageUrl']));
+    }else{
+        bot.reply(message, ("sorry, can't find card..."));
+    }
   });
 
 });
